@@ -1,5 +1,4 @@
 const { getDatabase } = require("../database");
-
 const COLLECTION_NAME = "carts";
 
 class Cart {
@@ -115,37 +114,6 @@ class Cart {
     } catch (error) {
       console.error("Error occurred while getting quantity of items in cart:", error); 
       return 0;
-    }
-  }
-
-  static async getTotalPrice() {
-    const db = getDatabase();
-
-    try {
-      const cart = await this.getCart();
-      const totalPrice = cart.items.reduce(
-        (total, item) => total + item.product.price * item.quantity,
-        0
-      );
-      return totalPrice;
-    } catch (error) {
-      console.error(
-        "Error occurred while calculating total price of items in cart:", error
-      ); 
-      return 0;
-    }
-  }
-
-  static async clearCart() {
-    const db = getDatabase();
-
-    try {
-      await db
-        .collection(COLLECTION_NAME)
-        .updateOne({}, { $set: { items: [] } });
-      console.log("Cart cleared successfully."); 
-    } catch (error) {
-      console.error("Error occurred while clearing cart:", error);
     }
   }
 }
