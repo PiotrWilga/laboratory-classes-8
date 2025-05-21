@@ -1,20 +1,21 @@
 const Product = require("../models/Product");
+
 const { MENU_LINKS } = require("../constants/navigation");
 const { STATUS_CODE } = require("../constants/statusCode");
+
 const cartController = require("./cartController");
 
 exports.getProductsView = async (request, response) => {
   const cartCount = await cartController.getProductsCount();
-
   const products = await Product.getAll();
 
   response.render("products.ejs", {
     headTitle: "Shop - Products",
-    path: "/products",
+    path: "/",
     menuLinks: MENU_LINKS,
     activeLinkPath: "/products",
     products,
-    cartCount: cartCount || 0,
+    cartCount,
   });
 };
 
@@ -26,7 +27,7 @@ exports.getAddProductView = async (request, response) => {
     path: "/add",
     menuLinks: MENU_LINKS,
     activeLinkPath: "/products/add",
-    cartCount: cartCount || 0,
+    cartCount,
   });
 };
 
@@ -40,7 +41,7 @@ exports.getNewProductView = async (request, response) => {
     activeLinkPath: "/products/new",
     menuLinks: MENU_LINKS,
     newestProduct,
-    cartCount: cartCount || 0,
+    cartCount,
   });
 };
 
@@ -56,7 +57,7 @@ exports.getProductView = async (request, response) => {
     activeLinkPath: `/products/${name}`,
     menuLinks: MENU_LINKS,
     product,
-    cartCount: cartCount || 0,
+    cartCount,
   });
 };
 
@@ -68,13 +69,7 @@ exports.deleteProduct = async (request, response) => {
 };
 
 exports.addProduct = async (request, response) => {
-  try {
-    await Product.add(request.body);
-    return response.status(STATUS_CODE.FOUND).redirect("/products/new");
-  } catch (error) {
-    console.error("Add product error:", error);
-    return response
-      .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
-      .render("500", { headTitle: "Błąd serwera" });
-  }
+  await Product.add(request.body);
+
+  response.status(STATUS_CODE.FOUND).redirect("/products/new");
 };

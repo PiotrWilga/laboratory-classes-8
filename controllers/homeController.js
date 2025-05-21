@@ -1,4 +1,5 @@
 const { MENU_LINKS } = require("../constants/navigation");
+
 const cartController = require("./cartController");
 
 exports.getHomeView = async (request, response) => {
@@ -9,6 +10,6 @@ exports.getHomeView = async (request, response) => {
     path: "/",
     activeLinkPath: "/",
     menuLinks: MENU_LINKS,
-    cartCount: cartCount || 0,
+    cartCount,
   });
 };
