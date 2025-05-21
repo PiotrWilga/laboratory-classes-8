@@ -10,17 +10,17 @@ class Cart {
     const db = getDatabase();
 
     try {
-      const cart = await db.collection(COLLECTION_NAME).findOne({});
+      let cart = await db.collection(COLLECTION_NAME).findOne({});
 
-      if (!cart) {
-        await db.collection(COLLECTION_NAME).insertOne({ items: [] });
-        return { items: [] };
+      if (!cart || !Array.isArray(cart.items)) {
+        cart = { items: [] };
+        await db.collection(COLLECTION_NAME).deleteMany({});
+        await db.collection(COLLECTION_NAME).insertOne(cart);
       }
 
       return cart;
     } catch (error) {
       console.error("Error occurred while searching cart");
-
       return { items: [] };
     }
   }
@@ -57,11 +57,9 @@ class Cart {
   static async getItems() {
     try {
       const cart = await this.getCart();
-
       return cart.items;
     } catch (error) {
       console.error("Error occurred while searching for products in cart");
-
       return [];
     }
   }
@@ -77,7 +75,6 @@ class Cart {
       return productsQuantity;
     } catch (error) {
       console.error("Error occurred while getting quantity of items in cart");
-
       return 0;
     }
   }
@@ -97,7 +94,6 @@ class Cart {
       console.error(
         "Error occurred while calcualting total price of items in cart"
       );
-
       return 0;
     }
   }
@@ -106,9 +102,7 @@ class Cart {
     const db = getDatabase();
 
     try {
-      await db
-        .collection(COLLECTION_NAME)
-        .updateOne({}, { $set: { items: [] } });
+      await db.collection(COLLECTION_NAME).updateOne({}, { $set: { items: [] } });
     } catch (error) {
       console.error("Error occurred while clearing cart");
     }

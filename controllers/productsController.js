@@ -1,38 +1,37 @@
 const Product = require("../models/Product");
-
 const { MENU_LINKS } = require("../constants/navigation");
 const { STATUS_CODE } = require("../constants/statusCode");
-
 const cartController = require("./cartController");
 
 exports.getProductsView = async (request, response) => {
-  const cartCount = cartController.getProductsCount();
+  const cartCount = await cartController.getProductsCount();
+
   const products = await Product.getAll();
 
   response.render("products.ejs", {
     headTitle: "Shop - Products",
-    path: "/",
+    path: "/products",
     menuLinks: MENU_LINKS,
     activeLinkPath: "/products",
     products,
-    cartCount,
+    cartCount: cartCount || 0,
   });
 };
 
 exports.getAddProductView = async (request, response) => {
-  const cartCount = cartController.getProductsCount();
+  const cartCount = await cartController.getProductsCount();
 
   response.render("add-product.ejs", {
     headTitle: "Shop - Add product",
     path: "/add",
     menuLinks: MENU_LINKS,
     activeLinkPath: "/products/add",
-    cartCount,
+    cartCount: cartCount || 0,
   });
 };
 
 exports.getNewProductView = async (request, response) => {
-  const cartCount = cartController.getProductsCount();
+  const cartCount = await cartController.getProductsCount();
   const newestProduct = await Product.getLast();
 
   response.render("new-product.ejs", {
@@ -41,12 +40,12 @@ exports.getNewProductView = async (request, response) => {
     activeLinkPath: "/products/new",
     menuLinks: MENU_LINKS,
     newestProduct,
-    cartCount,
+    cartCount: cartCount || 0,
   });
 };
 
 exports.getProductView = async (request, response) => {
-  const cartCount = cartController.getProductsCount();
+  const cartCount = await cartController.getProductsCount();
   const name = request.params.name;
 
   const product = await Product.findByName(name);
@@ -57,7 +56,7 @@ exports.getProductView = async (request, response) => {
     activeLinkPath: `/products/${name}`,
     menuLinks: MENU_LINKS,
     product,
-    cartCount,
+    cartCount: cartCount || 0,
   });
 };
 
@@ -66,4 +65,16 @@ exports.deleteProduct = async (request, response) => {
   await Product.deleteByName(name);
 
   response.status(STATUS_CODE.OK).json({ success: true });
+};
+
+exports.addProduct = async (request, response) => {
+  try {
+    await Product.add(request.body);
+    return response.status(STATUS_CODE.FOUND).redirect("/products/new");
+  } catch (error) {
+    console.error("Add product error:", error);
+    return response
+      .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
+      .render("500", { headTitle: "Błąd serwera" });
+  }
 };

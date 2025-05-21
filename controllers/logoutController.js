@@ -1,6 +1,5 @@
 const { LOGOUT_LINKS } = require("../constants/navigation");
 const logger = require("../utils/logger");
-
 const cartController = require("./cartController");
 
 exports.getLogoutView = async (request, response) => {
@@ -11,7 +10,7 @@ exports.getLogoutView = async (request, response) => {
     path: "/logout",
     activeLinkPath: "/logout",
     menuLinks: LOGOUT_LINKS,
-    cartCount,
+    cartCount: cartCount || 0,
   });
 };
 
